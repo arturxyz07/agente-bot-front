@@ -119,16 +119,16 @@ export async function consumeChatStream(
 // ─────────────────────────────
 // AUTH
 // ─────────────────────────────
-export const register = (n: string, e: string, p: string) =>
+export const register = (n: string, e: string, p: string, recaptchaToken: string) =>
   fetcher("/api/auth/register", {
     method: "POST",
-    body: JSON.stringify({ name: n, email: e, password: p }),
+    body: JSON.stringify({ name: n, email: e, password: p, recaptchaToken }),
   });
 
-export const login = (e: string, p: string) =>
+export const login = (e: string, p: string, recaptchaToken: string) =>
   fetcher("/api/auth/login", {
     method: "POST",
-    body: JSON.stringify({ email: e, password: p }),
+    body: JSON.stringify({ email: e, password: p, recaptchaToken }),
   });
 
 export const getMe = () => fetcher("/api/auth/me");
