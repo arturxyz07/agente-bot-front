@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 interface RecaptchaApi {
   render(container: HTMLElement, options: {
     sitekey: string;
-    size: "compact";
+    size: "normal";
     callback: (token: string) => void;
     "expired-callback": () => void;
     "error-callback": () => void;
@@ -65,7 +65,7 @@ export function Recaptcha({ siteKey, onToken }: {
       api = loaded;
       widget = api.render(target, {
         sitekey: siteKey,
-        size: "compact",
+        size: "normal",
         callback: (token) => { if (active) { onToken(token); setError(null); } },
         "expired-callback": () => { if (active) { onToken(null); setError("Verificação expirada. Confirme novamente."); } },
         "error-callback": () => { if (active) { onToken(null); setError("Falha na verificação. Recarregue a página e tente novamente."); } },
