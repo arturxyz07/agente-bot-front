@@ -9,18 +9,9 @@ import { generateId } from "@/lib/utils";
 import { getModels, getConversations, deleteConversation, getConversation } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import { AuthPage } from "@/components/AuthPage";
+import { SystemHealth } from "@/components/SystemHealth";
 import { cn } from "@/lib/utils";
-
-function normalizeConversation(conv: any): Conversation {
-  return {
-    id: conv.id || conv._id,
-    title: conv.title || "Nova conversa",
-    modelId: conv.modelId,
-    messages: Array.isArray(conv.messages) ? conv.messages : [],
-    createdAt: new Date(conv.createdAt || Date.now()),
-    updatedAt: new Date(conv.updatedAt || Date.now()),
-  };
-}
+import { normalizeConversation } from "@/lib/normalize";
 
 export default function Home() {
   const { user, loading } = useAuth();
@@ -32,7 +23,6 @@ export default function Home() {
   const [activeId, setActiveId] = useState<string | null>(null);
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [loadingData, setLoadingData] = useState(true);
 
   // ─────────────────────────────
   // LOAD
@@ -45,7 +35,7 @@ export default function Home() {
         setModels(m.models || []);
         setConversations((c.conversations || []).map(normalizeConversation));
       })
-      .finally(() => setLoadingData(false));
+      .catch((error) => console.error("Erro ao carregar dados iniciais:", error));
   }, [user]);
 
   // ─────────────────────────────
@@ -185,6 +175,10 @@ export default function Home() {
               {selectedModel.name}
             </span>
           )}
+
+          <div className="ml-auto">
+            <SystemHealth />
+          </div>
         </div>
 
         {/* CONTENT */}

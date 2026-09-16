@@ -69,3 +69,22 @@ export interface AuthResponse {
   token: string;
   user: User;
 }
+
+export type HealthStatus = "healthy" | "degraded" | "unhealthy";
+export type ServiceStatus = "operational" | "degraded" | "unavailable";
+
+export interface HealthSnapshot {
+  status: HealthStatus;
+  timestamp: string;
+  uptimeSeconds: number;
+  version: string;
+  services: {
+    api: { status: ServiceStatus; responseTimeMs: number };
+    database: { status: ServiceStatus; responseTimeMs: number | null };
+  };
+  resources: {
+    processMemoryMb: number;
+    processHeapUsagePercent: number;
+    systemMemoryUsagePercent: number;
+  };
+}

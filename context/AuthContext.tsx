@@ -26,19 +26,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const stored = localStorage.getItem("token");
-    if (!stored) {
-      setLoading(false);
-      return;
-    }
-    setToken(stored);
-    getMe()
-      .then((data) => setUser(data.user))
-      .catch(() => {
-        localStorage.removeItem("token");
-        setToken(null);
-      })
-      .finally(() => setLoading(false));
+    void Promise.resolve().then(() => {
+      const stored = localStorage.getItem("token");
+      if (!stored) {
+        setLoading(false);
+        return;
+      }
+      setToken(stored);
+      getMe()
+        .then((data) => setUser(data.user))
+        .catch(() => {
+          localStorage.removeItem("token");
+          setToken(null);
+        })
+        .finally(() => setLoading(false));
+    });
   }, []);
 
   const login = (t: string, u: User) => {
@@ -62,4 +64,4 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   return useContext(AuthContext);
-}   
+}

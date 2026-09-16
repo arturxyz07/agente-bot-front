@@ -1,4 +1,4 @@
-import type { ImageAttachment } from "@/types";
+import type { HealthSnapshot, ImageAttachment } from "@/types";
 
 const API_URL = (process.env.NEXT_PUBLIC_API_URL || "https://agente-bot-api.vercel.app").replace(/\/$/, "");
 
@@ -132,6 +132,9 @@ export const login = (e: string, p: string) =>
   });
 
 export const getMe = () => fetcher("/api/auth/me");
+
+export const getHealth = (signal?: AbortSignal): Promise<HealthSnapshot> =>
+  fetcher("/api/health", { signal, cache: "no-store" });
 
 // ─────────────────────────────
 // MODELS

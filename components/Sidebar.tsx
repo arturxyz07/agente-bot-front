@@ -206,7 +206,7 @@ export function Sidebar({
                             </div>
                         ) : (
                             safeConversations.map((conv) => {
-                                const id = conv?.id || (conv as any)?._id;
+                                const id = conv.id;
 
                                 if (!id) return null; // 👈 evita crash total
 
