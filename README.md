@@ -1,5 +1,26 @@
 # Agente Bot — frontend
 
+## Painel admin e documentos (RAG)
+
+Acesse **`/admin`** ou o link **Painel admin · Documentos** no menu após entrar como administrador.
+
+**Administrador padrão de desenvolvimento:** email `admin@agente-bot.local`, senha `Admin@123456`. Antes do primeiro login, execute **`npm run seed:admin` no backend**, com o MongoDB configurado. O login exige o reCAPTCHA já utilizado pelo projeto. O cadastro público cria apenas usuários comuns.
+
+No backend, `ADMIN_EMAIL` e `ADMIN_PASSWORD` permitem definir outras credenciais. Em produção, defina `NODE_ENV=production` e uma senha própria de pelo menos 12 caracteres; o seed rejeita a senha padrão. Reexecutar o seed não altera senhas existentes.
+
+No painel:
+
+1. Envie um PDF com texto selecionável ou TXT em UTF-8 (até 4 MiB e 200.000 caracteres).
+2. Selecione o documento e faça uma pergunta de até 4.000 caracteres.
+3. Consulte a resposta e os trechos citados pelo Gemini. Quando a informação não estiver no documento, o modelo é instruído a informar isso.
+4. Exclua documentos pelo ícone de lixeira e confirme a exclusão.
+
+O backend recupera e envia o texto integral ao Gemini internamente a cada consulta. A interface recebe metadados e respostas; o texto completo não entra no histórico do chat. Não há embeddings ou busca vetorial nesta versão. PDFs digitalizados precisam de OCR externo antes do envio. As respostas são geradas por IA e devem ser verificadas contra a fonte.
+
+Configure `GOOGLE_GENERATIVE_AI_API_KEY`, `MONGO_URI` e `JWT_SECRET` no backend. Opcionalmente, defina `RAG_GEMINI_MODEL`. Copie `.env.example` para `.env.local` no frontend e configure a URL da API e a chave pública reCAPTCHA. As permissões são verificadas no backend em todas as rotas `/api/admin/*`; esconder o painel no frontend não é a barreira de segurança.
+
+Validação local: `npm run lint` e `npm run build`. O backend possui testes automatizados em `npm test`.
+
 Interface Next.js para o backend do Agente Bot, com chat em streaming e anexos de imagem via Cloudinary.
 
 ## Desenvolvimento

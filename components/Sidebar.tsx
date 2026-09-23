@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import Link from "next/link";
 import { AIModel, Conversation, ModelProvider } from "@/types";
 import { ModelCard } from "./ModelCard";
 import { ScrollArea } from "./ui/scroll-area";
@@ -98,6 +99,12 @@ export function Sidebar({
                     <Trophy className="h-4 w-4 text-yellow-500" />
                     Ver Ranking
                 </Button>
+
+                {user?.role === "admin" && (
+                    <Link href="/admin" className="block rounded-lg border border-zinc-300 p-2 text-center text-sm font-medium dark:border-zinc-700">
+                        Painel admin · Documentos
+                    </Link>
+                )}
 
                 {/* Tabs */}
                 <div className="flex rounded-lg bg-zinc-100 dark:bg-zinc-800/50 p-0.5">

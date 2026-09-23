@@ -63,6 +63,15 @@ export interface User {
   id: string;
   name: string;
   email: string;
+  role?: "user" | "admin";
+}
+
+export interface KnowledgeDocument {
+  _id: string;
+  name: string;
+  bytes: number;
+  characters: number;
+  createdAt: string;
 }
 
 export interface AuthResponse {

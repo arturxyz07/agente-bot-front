@@ -16,7 +16,7 @@ export async function fetcher(path: string, options?: RequestInit) {
   const res = await fetch(`${API_URL}${path}`, {
     ...options,
     headers: {
-      "Content-Type": "application/json",
+      ...(options?.body instanceof FormData ? {} : { "Content-Type": "application/json" }),
       ...authHeaders(),
       ...(options?.headers || {}),
     },
@@ -132,6 +132,17 @@ export const login = (e: string, p: string, recaptchaToken: string) =>
   });
 
 export const getMe = () => fetcher("/api/auth/me");
+
+export const getDocuments = () => fetcher("/api/admin/documents", { cache: "no-store" });
+export const uploadDocument = (file: File) => {
+  const body = new FormData();
+  body.append("file", file);
+  return fetcher("/api/admin/documents", { method: "POST", body });
+};
+export const deleteDocument = (id: string) => fetcher(`/api/admin/documents/${id}`, { method: "DELETE" });
+export const askDocument = (id: string, question: string) => fetcher(`/api/admin/documents/${id}/ask`, {
+  method: "POST", body: JSON.stringify({ question }),
+});
 
 export const getHealth = (signal?: AbortSignal): Promise<HealthSnapshot> =>
   fetcher("/api/health", { signal, cache: "no-store" });
