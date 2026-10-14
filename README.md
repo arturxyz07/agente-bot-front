@@ -44,7 +44,7 @@ Depois execute `npm install` e `npm run dev`.
 No projeto do **frontend**, configure em Settings → Environment Variables:
 
 ```env
-NEXT_PUBLIC_API_URL=https://seu-backend.vercel.app
+NEXT_PUBLIC_API_URL=https://agente-bot-back.onrender.com
 ```
 
 Marque Production, Preview e Development. A variável é incorporada no build, portanto faça um novo deploy sempre que alterar seu valor.

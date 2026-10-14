@@ -1,6 +1,6 @@
 import type { HealthSnapshot, ImageAttachment } from "@/types";
 
-export const API_URL = (process.env.NEXT_PUBLIC_API_URL || "https://agente-bot-api.vercel.app").replace(/\/$/, "");
+export const API_URL = (process.env.NEXT_PUBLIC_API_URL || "https://agente-bot-back.onrender.com").replace(/\/$/, "");
 
 function getToken(): string | null {
   if (typeof window === "undefined") return null;
