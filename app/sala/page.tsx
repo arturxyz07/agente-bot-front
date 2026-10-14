@@ -6,11 +6,11 @@ import { io, type Socket } from "socket.io-client";
 import { ArrowLeft, Loader2, Send } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { AuthPage } from "@/components/AuthPage";
-import { API_URL } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import type { RoomMessage } from "@/types";
 
-const SOCKET_URL = (process.env.NEXT_PUBLIC_SOCKET_URL || API_URL).replace(/\/$/, "");
+// A Vercel (serverless) não mantém WebSockets: o Socket.io roda no backend do Render.
+const SOCKET_URL = (process.env.NEXT_PUBLIC_SOCKET_URL || "https://agente-bot-back.onrender.com").replace(/\/$/, "");
 const MAX_CHARS = 1000;
 const TYPING_IDLE_MS = 2000;
 
