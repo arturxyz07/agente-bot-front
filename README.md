@@ -1,5 +1,11 @@
 # Agente Bot — frontend
 
+## Sala Pública em tempo real
+
+Acesse **`/sala`** ou o link **Sala Pública ao vivo** no menu. A página conecta ao backend via Socket.io enviando o JWT do login. Mensagens aparecem em todas as abas abertas sem recarregar, com o nome do autor. Chame a IA com `@gemini` ou `@bot`; a resposta aparece para todos como **🤖 Moderador Gemini**. O topo mostra os usuários online e o rodapé indica quem está digitando.
+
+A URL do WebSocket é `NEXT_PUBLIC_SOCKET_URL` ou, se vazia, `NEXT_PUBLIC_API_URL`. O backend precisa rodar em um serviço com conexões persistentes (ex.: Render).
+
 ## Painel admin e documentos (RAG)
 
 Acesse **`/admin`** ou o link **Painel admin · Documentos** no menu após entrar como administrador.

@@ -97,3 +97,12 @@ export interface HealthSnapshot {
     systemMemoryUsagePercent: number;
   };
 }
+
+export interface RoomMessage {
+  id: string;
+  autor: string;
+  autorId: string;
+  texto: string;
+  tipo: "usuario" | "bot";
+  criadoEm: string;
+}

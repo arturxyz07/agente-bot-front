@@ -7,7 +7,7 @@ import { ModelCard } from "./ModelCard";
 import { ScrollArea } from "./ui/scroll-area";
 import { Separator } from "./ui/separator";
 import { getProviderLabel } from "@/lib/utils";
-import { Search, MessageSquare, Trash2, Bot, LogOut, Trophy } from "lucide-react";
+import { Search, MessageSquare, Trash2, Bot, LogOut, Trophy, Users } from "lucide-react";
 import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
@@ -99,6 +99,11 @@ export function Sidebar({
                     <Trophy className="h-4 w-4 text-yellow-500" />
                     Ver Ranking
                 </Button>
+
+                <Link href="/sala" className="flex items-center justify-center gap-2 rounded-lg border border-emerald-300 bg-emerald-50 p-2 text-sm font-medium text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-200">
+                    <Users className="h-4 w-4" />
+                    Sala Pública ao vivo
+                </Link>
 
                 {user?.role === "admin" && (
                     <Link href="/admin" className="block rounded-lg border border-zinc-300 p-2 text-center text-sm font-medium dark:border-zinc-700">
