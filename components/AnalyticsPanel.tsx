@@ -36,9 +36,9 @@ interface Kpi {
   accent: string;
 }
 
-export function AnalyticsPanel() {
-  const [data, setData] = useState<AnalyticsTokens | null>(null);
-  const [loading, setLoading] = useState(true);
+export function AnalyticsPanel({ initialData }: { initialData?: AnalyticsTokens } = {}) {
+  const [data, setData] = useState<AnalyticsTokens | null>(initialData ?? null);
+  const [loading, setLoading] = useState(!initialData);
   const [error, setError] = useState("");
   const [updatedAt, setUpdatedAt] = useState<Date | null>(null);
   const [live, setLive] = useState(false);
@@ -65,10 +65,12 @@ export function AnalyticsPanel() {
 
   // Carga inicial + atualização automática a cada 30s.
   useEffect(() => {
+    if (initialData) { dataRef.current = initialData; return; } // preview/teste: dados injetados
     const ctrl = new AbortController();
     load(ctrl.signal);
     const t = setInterval(() => load(), 30_000);
     return () => { ctrl.abort(); clearInterval(t); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Desenha / atualiza o gráfico quando os dados mudam.
@@ -93,6 +95,7 @@ export function AnalyticsPanel() {
       }
       const ctx = canvasRef.current.getContext("2d");
       chartRef.current = new Chart(ctx, {
+        type: "bar", // tipo base obrigatório; a série de linha sobrescreve com type próprio
         data: {
           labels,
           datasets: [
@@ -216,13 +219,14 @@ export function AnalyticsPanel() {
 
       <div className="rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
         <h3 className="mb-3 text-sm font-medium text-zinc-500">Tokens e mensagens por dia</h3>
-        <div className="relative h-72">
+        {/* Container de altura fixa; o canvas é absolute para não empurrar o layout (evita sobreposição). */}
+        <div className="relative h-72 w-full">
+          {/* Sprint 8 (REQ-007): canvas do gráfico, dentro do painel admin. */}
+          <canvas id="graficoTokens" ref={canvasRef} className="absolute inset-0" />
           {loading && !data && <div className="absolute inset-0 animate-pulse rounded-lg bg-zinc-100 dark:bg-zinc-800/50" />}
-          {data && data.porDia.length === 0 && !loading && (
-            <div className="flex h-full items-center justify-center text-sm text-zinc-500">Sem dados ainda. Converse com a IA para gerar métricas.</div>
+          {!loading && data && data.porDia.length === 0 && (
+            <div className="absolute inset-0 flex items-center justify-center text-sm text-zinc-500">Sem dados ainda. Converse com a IA para gerar métricas.</div>
           )}
-          {/* Sprint 8 (REQ-007): canvas do gráfico, agora dentro do painel admin. */}
-          <canvas id="graficoTokens" ref={canvasRef} className={data && data.porDia.length ? "" : "hidden"} />
         </div>
       </div>
     </section>
