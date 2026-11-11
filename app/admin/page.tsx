@@ -6,6 +6,7 @@ import { ArrowLeft, FileText, Loader2, ShieldCheck, Trash2, Upload } from "lucid
 import { useAuth } from "@/context/AuthContext";
 import { AuthPage } from "@/components/AuthPage";
 import { AnalyticsPanel } from "@/components/AnalyticsPanel";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { askDocument, deleteDocument, getDocuments, uploadDocument } from "@/lib/api";
 import type { KnowledgeDocument } from "@/types";
 
@@ -141,9 +142,9 @@ export default function AdminPage() {
   if (!user) return <AuthPage />;
   if (user.role !== "admin") return <main className="mx-auto max-w-lg space-y-4 p-8"><h1 className="text-xl font-semibold">Acesso restrito</h1><p>Este painel está disponível somente para administradores.</p><Link href="/" className="underline">Voltar ao chat</Link></main>;
   return (
-    <main className="min-h-screen bg-zinc-50 px-4 py-8 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100 sm:px-8">
+    <main className="h-screen overflow-y-auto bg-zinc-50 px-4 py-8 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100 sm:px-8">
       <div className="mx-auto max-w-6xl space-y-8">
-        <nav className="flex justify-between text-sm"><Link href="/" className="flex items-center gap-2"><ArrowLeft size={16} /> Voltar ao chat</Link><button onClick={logout}>Sair</button></nav>
+        <nav className="flex items-center justify-between text-sm"><Link href="/" className="flex items-center gap-2"><ArrowLeft size={16} /> Voltar ao chat</Link><div className="flex items-center gap-2"><ThemeToggle /><button onClick={logout}>Sair</button></div></nav>
         <header className="space-y-3"><p className="flex items-center gap-2 text-sm font-medium text-emerald-700 dark:text-emerald-400"><ShieldCheck size={18} /> Administração</p><h1 className="text-3xl font-semibold tracking-tight">Painel do administrador</h1><p className="max-w-2xl text-zinc-500">Acompanhe o consumo de IA e os custos e gerencie o conhecimento da empresa.</p></header>
         <AnalyticsPanel />
         <DocumentPanel key={user.id} />
