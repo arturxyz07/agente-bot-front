@@ -148,6 +148,18 @@ export const getHealth = (signal?: AbortSignal): Promise<HealthSnapshot> =>
   fetcher("/api/health", { signal, cache: "no-store" });
 
 // ─────────────────────────────
+// ANALYTICS (Sprint 8 — Centro de Comando)
+// ─────────────────────────────
+export interface AnalyticsTokens {
+  totalTokens: number;
+  totalMensagens: number;
+  totalUsuarios: number;
+  porDia: { dia: string; tokens: number; mensagens: number }[];
+}
+export const getAnalyticsTokens = (signal?: AbortSignal): Promise<AnalyticsTokens> =>
+  fetcher("/api/analytics/tokens", { signal, cache: "no-store" });
+
+// ─────────────────────────────
 // MODELS
 // ─────────────────────────────
 export const getModels = () => fetcher("/api/ia/models");
