@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Centro de Comando — Analytics</title>
+  <!-- Sprint 8 (REQ-007): Chart.js via CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Desafio Hacker: WebSocket para atualização em tempo real -->
+  <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+  <style>
+    :root {
+      --bg: #0b1120; --panel: #111827; --border: #1f2937;
+      --text: #e5e7eb; --muted: #9ca3af; --accent: #38bdf8; --accent2: #818cf8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--bg); color: var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      padding: 24px 16px; min-height: 100vh;
+    }
+    .wrap { max-width: 980px; margin: 0 auto; }
+    header { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
+    h1 { font-size: 1.5rem; margin: 0; }
+    .sub { color: var(--muted); margin: 0 0 24px; font-size: .9rem; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .card { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 18px; }
+    .card .label { color: var(--muted); font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+    .card .value { font-size: 2rem; font-weight: 700; margin-top: 6px; }
+    .card.tokens .value { color: var(--accent); }
+    .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 18px; }
+    .panel h2 { font-size: 1rem; margin: 0 0 12px; color: var(--muted); font-weight: 600; }
+    .bar { position: relative; height: 340px; }
+    .status { margin-top: 16px; font-size: .85rem; color: var(--muted); }
+    .error { color: #f87171; }
+    .live { display: inline-flex; align-items: center; gap: 6px; color: #34d399; font-size: .8rem; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #34d399; animation: pulse 1.4s infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
+    .setup { background: var(--panel); border: 1px dashed var(--border); border-radius: 14px; padding: 16px; margin-bottom: 24px; }
+    .setup input { width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); background: #0b1120; color: var(--text); margin-top: 6px; }
+    .setup button { margin-top: 10px; padding: 8px 14px; border: 0; border-radius: 8px; background: var(--accent); color: #06283d; font-weight: 700; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <span style="font-size:1.8rem">📊</span>
+      <h1>Centro de Comando</h1>
+    </header>
+    <p class="sub">Dashboard de Analytics &amp; Controle de Custos — acesso restrito a administradores.</p>
+
+    <div class="setup" id="setup" hidden>
+      <strong>Sem token de administrador.</strong>
+      <p class="sub" style="margin:8px 0 0">Faça login no app e, no console do navegador, confira <code>localStorage.getItem('token')</code>. Cole abaixo se necessário:</p>
+      <input id="tokenInput" placeholder="JWT (Bearer token)" />
+      <input id="apiInput" placeholder="URL do backend (ex.: https://agente-bot-back.onrender.com)" />
+      <button id="saveBtn">Salvar e carregar</button>
+    </div>
+
+    <div class="cards">
+      <div class="card tokens"><div class="label">Tokens gastos</div><div class="value" id="totalTokens">—</div></div>
+      <div class="card"><div class="label">Mensagens</div><div class="value" id="totalMensagens">—</div></div>
+      <div class="card"><div class="label">Usuários</div><div class="value" id="totalUsuarios">—</div></div>
+    </div>
+
+    <div class="panel">
+      <h2>Tokens gastos por dia</h2>
+      <div class="bar">
+        <!-- Sprint 8 (REQ-007): elemento renderizador do gráfico -->
+        <canvas id="graficoTokens"></canvas>
+      </div>
+      <div class="status" id="status">Carregando…</div>
+    </div>
+  </div>
+
+  <script>
+    // Backend: usa override salvo, senão o padrão de produção.
+    const DEFAULT_API = "https://agente-bot-back.onrender.com";
+    const apiUrl = () => (localStorage.getItem("dashboard_api") || DEFAULT_API).replace(/\/$/, "");
+    const getToken = () => localStorage.getItem("token") || localStorage.getItem("dashboard_token");
+
+    const statusEl = document.getElementById("status");
+    let grafico = null;
+
+    function montarGrafico(porDia) {
+      const ctx = document.getElementById("graficoTokens").getContext("2d");
+      const labels = porDia.map((d) => d.dia);
+      const dados = porDia.map((d) => d.tokens);
+      grafico = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [{
+            label: "Tokens",
+            data: dados,
+            backgroundColor: "rgba(56, 189, 248, 0.6)",
+            borderColor: "#38bdf8",
+            borderWidth: 1,
+            borderRadius: 6,
+          }],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { color: "#9ca3af" }, grid: { color: "#1f2937" } },
+            y: { beginAtZero: true, ticks: { color: "#9ca3af" }, grid: { color: "#1f2937" } },
+          },
+        },
+      });
+    }
+
+    async function carregar() {
+      const token = getToken();
+      if (!token) {
+        document.getElementById("setup").hidden = false;
+        statusEl.innerHTML = '<span class="error">Token ausente. Informe acima.</span>';
+        return;
+      }
+      try {
+        const res = await fetch(`${apiUrl()}/api/analytics/tokens`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.status === 403) throw new Error("Acesso negado: seu usuário não é admin (altere role no MongoDB Atlas).");
+        if (res.status === 401) throw new Error("Token inválido ou expirado. Faça login novamente.");
+        if (!res.ok) throw new Error(`Falha ao carregar (HTTP ${res.status}).`);
+        const data = await res.json();
+
+        document.getElementById("totalTokens").textContent = (data.totalTokens || 0).toLocaleString("pt-BR");
+        document.getElementById("totalMensagens").textContent = (data.totalMensagens || 0).toLocaleString("pt-BR");
+        document.getElementById("totalUsuarios").textContent = (data.totalUsuarios || 0).toLocaleString("pt-BR");
+
+        montarGrafico(data.porDia || []);
+        statusEl.textContent = `Atualizado em ${new Date().toLocaleString("pt-BR")}.`;
+        conectarTempoReal(token);
+      } catch (err) {
+        statusEl.innerHTML = `<span class="error">${err.message}</span>`;
+      }
+    }
+
+    // Desafio Hacker: o gráfico sobe sozinho quando alguém chama o bot na sala.
+    function conectarTempoReal(token) {
+      if (typeof io === "undefined") return;
+      const socket = io(apiUrl(), { auth: { token }, transports: ["websocket"], reconnection: true });
+      socket.on("novoGastoDeToken", (quantidade) => {
+        const n = Number(quantidade) || 0;
+        const totalEl = document.getElementById("totalTokens");
+        const atual = Number((totalEl.textContent || "0").replace(/\D/g, "")) || 0;
+        totalEl.textContent = (atual + n).toLocaleString("pt-BR");
+
+        if (grafico) {
+          const hoje = new Date().toISOString().slice(0, 10);
+          const labels = grafico.data.labels;
+          const dados = grafico.data.datasets[0].data;
+          const i = labels.indexOf(hoje);
+          if (i >= 0) dados[i] += n; else { labels.push(hoje); dados.push(n); }
+          grafico.update();
+        }
+        statusEl.innerHTML = `<span class="live"><span class="dot"></span>+${n} tokens em tempo real</span>`;
+      });
+    }
+
+    document.getElementById("saveBtn").addEventListener("click", () => {
+      const t = document.getElementById("tokenInput").value.trim();
+      const a = document.getElementById("apiInput").value.trim();
+      if (t) localStorage.setItem("dashboard_token", t);
+      if (a) localStorage.setItem("dashboard_api", a);
+      location.reload();
+    });
+
+    carregar();
+  </script>
+</body>
+</html>
